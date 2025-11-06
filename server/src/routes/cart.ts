@@ -7,7 +7,7 @@ import { cacheGetRedis, invalidateCache } from '../middleware/cache.js';
 const router = Router();
 router.get('/', cacheGetRedis({
   prefix: 'cart',
-  ttlSeconds: 60,
+  ttlSeconds: 60*60*24*7, // 7 days
   keyGenerator: (req) => req.session.userId!,
 }), async (req, res, next) => {
   try {

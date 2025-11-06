@@ -7,7 +7,7 @@ Overview
 
 Quick Start
 
-- Prereqs: Node 18+ and npm; MongoDB running locally or in the cloud.
+- Prereqs: Node 18+ and npm; MongoDB and Redis running locally or in the cloud.
 - Install: `npm install`
 - Configure env: copy `.env.example` to `.env` and set values.
 - Dev: `npm run dev` (build then run)
@@ -19,6 +19,7 @@ Environment
 - PORT (default 3000)
 - MONGODB_URI (include database, e.g. `mongodb://localhost:27017/mock_ecom`)
 - SESSION_SECRET (any random string for dev)
+- REDIS_URL (e.g. `redis://localhost:6379`)
 
 Endpoints
 
@@ -34,6 +35,20 @@ Notes
 - Currency: totals rounded to 2 decimals.
 - Persistence: cart is stored per-session in MongoDB (via connect-mongo).
 - Products are seeded on first start from `src/data/products.ts` if the collection is empty.
+
+Redis Usage
+
+- GET response caching
+  - Uses Redis to cache JSON responses for GET routes.
+  - Products list cached for 5 minutes; cart summary cached per user for 60 seconds.
+  - Sends `X-Cache` header as `HIT` or `MISS`.
+  - Configure via `cacheGetRedis` middleware in `src/middleware/cache.ts`.
+
+- Rate limiting
+  - Global fixed-window limiter backed by Redis.
+  - Limit: 100 requests per 5 minutes per IP.
+  - Sends `X-RateLimit-Limit`, `X-RateLimit-Remaining`, `X-RateLimit-Reset` headers.
+  - Configured in `src/index.ts` with `rateLimitRedis({ windowSeconds: 300, max: 100 })`.
 
 Testing With curl
 

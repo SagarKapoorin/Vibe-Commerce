@@ -6,7 +6,7 @@ import checkoutRoute from './routes/checkout.js';
 import dotenv from 'dotenv';
 import { connectDB } from './db/mongoose.js';
 import { sessionMiddleware } from './middleware/session.js';
-import { HttpError } from './errors.js';
+import { HttpError, type JsonValue } from './errors.js';
 
 dotenv.config();
 
@@ -30,12 +30,12 @@ app.use((req, res) => {
   res.status(404).json({ error: 'Not found' });
 });
 
-app.use((err: Error|HttpError, _req: express.Request, res: express.Response) => {
+app.use((err: Error | HttpError, _req: express.Request, res: express.Response) => {
    
   console.error(err);
   const status = err instanceof HttpError && err.status ? err.status : 500;
   const message = err instanceof HttpError ? err.message : 'Internal Server Error';
-  const payload: { error: string; details?: {} } = { error: message };
+  const payload: { error: string; details?: JsonValue } = { error: message };
   if (err instanceof HttpError && err.details) payload.details = err.details;
   res.status(status).json(payload);
 });

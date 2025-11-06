@@ -7,6 +7,8 @@ import dotenv from 'dotenv';
 import { connectDB } from './db/mongoose.js';
 import { sessionMiddleware } from './middleware/session.js';
 import { HttpError, type JsonValue } from './errors.js';
+import { getRedisClient } from './db/redis.js';
+import { rateLimitRedis } from './middleware/rateLimit.js';
 
 dotenv.config();
 
@@ -17,6 +19,7 @@ app.use(express.json());
 const [sessionHandler, ensureUserId] = sessionMiddleware();
 app.use(sessionHandler);
 app.use(ensureUserId);
+app.use(rateLimitRedis());
 
 app.get('/api/health', (_req, res) => {
   res.json({ ok: true });
@@ -41,7 +44,7 @@ app.use((err: Error | HttpError, _req: express.Request, res: express.Response) =
 });
 
 const PORT = Number(process.env.PORT) || 3000;
-connectDB()
+Promise.all([connectDB(), getRedisClient()])
   .then(() => {
     app.listen(PORT, () => {
       console.log(`Server listening on http://localhost:${PORT}`);

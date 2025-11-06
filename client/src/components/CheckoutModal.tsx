@@ -13,15 +13,15 @@ export default function CheckoutModal({ open, onClose, onSubmit }: Props) {
   const [loading, setLoading] = useState(false);
   const [receipt, setReceipt] = useState<Receipt | null>(null);
   const [error, setError] = useState<string | null>(null);
-
+  // console.log('CheckoutModal render, open=', open); 
   if (!open) return null;
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
     setLoading(true);
     try {
       const r = await onSubmit(name, email);
+      // console.log('Received receipt:', r);
       setReceipt(r);
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Checkout failed';
@@ -30,7 +30,6 @@ export default function CheckoutModal({ open, onClose, onSubmit }: Props) {
       setLoading(false);
     }
   };
-
   const close = () => {
     setName('');
     setEmail('');
@@ -46,6 +45,7 @@ export default function CheckoutModal({ open, onClose, onSubmit }: Props) {
           <h3 className="text-lg font-semibold">Checkout</h3>
           <button onClick={close} className="text-gray-500 hover:text-black">✕</button>
         </div>
+
 
         {!receipt ? (
           <form onSubmit={handleSubmit} className="p-4 space-y-3">
@@ -80,11 +80,11 @@ export default function CheckoutModal({ open, onClose, onSubmit }: Props) {
                 disabled={loading}
                 className="px-4 py-2 text-sm rounded-md bg-black text-white disabled:opacity-60"
               >
-                {loading ? 'Processing…' : 'Place Order'}
+                {loading ? 'Processing...' : 'Place Order'}
               </button>
             </div>
           </form>
-        ) : (
+) : (
           <div className="p-4 space-y-3">
             <h4 className="font-medium">Receipt</h4>
             <div className="text-sm text-gray-700">ID: {receipt.id}</div>
@@ -99,7 +99,7 @@ export default function CheckoutModal({ open, onClose, onSubmit }: Props) {
                 </li>
               ))}
             </ul>
-            <div className="flex justify-between font-semibold pt-2 border-t">
+                              <div className="flex justify-between font-semibold pt-2 border-t">
               <span>Total</span>
               <span>${receipt.total.toFixed(2)}</span>
             </div>
@@ -114,4 +114,5 @@ export default function CheckoutModal({ open, onClose, onSubmit }: Props) {
     </div>
   );
 }
+
 

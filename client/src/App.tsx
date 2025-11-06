@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { api } from './api';
-import type { CartSummary, Product, Receipt } from './types';
+import type { CartSummary, Product } from './types';
 import ProductCard from './components/ProductCard';
 import Cart from './components/Cart';
 import CheckoutModal from './components/CheckoutModal';
@@ -12,9 +12,8 @@ export default function App() {
   const [updatingCart, setUpdatingCart] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [showCheckout, setShowCheckout] = useState(false);
-  const [lastReceipt, setLastReceipt] = useState<Receipt | null>(null);
   const [view, setView] = useState<'products' | 'cart'>('products');
-
+// console.log('App render, view=', view, 'cart=', cart);
   const cartCount = useMemo(() => cart?.items.reduce((sum, i) => sum + i.qty, 0) ?? 0, [cart]);
 
   useEffect(() => {
@@ -25,8 +24,8 @@ export default function App() {
         if (!alive) return;
         setProducts(p);
         setCart(c);
-      } catch (err: any) {
-        setError(err?.message || 'Failed to load');
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'Failed to load');
       } finally {
         setLoading(false);
       }
@@ -42,8 +41,8 @@ export default function App() {
     try {
       const updated = await api.addToCart(id, 1);
       setCart(updated);
-    } catch (err: any) {
-      setError(err?.message || 'Failed to update cart');
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to update cart');
     } finally {
       setUpdatingCart(false);
     }
@@ -57,8 +56,8 @@ export default function App() {
     try {
       const updated = await api.addToCart(id, -1);
       setCart(updated);
-    } catch (err: any) {
-      setError(err?.message || 'Failed to update cart');
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to update cart');
     } finally {
       setUpdatingCart(false);
     }
@@ -69,8 +68,8 @@ export default function App() {
     try {
       const updated = await api.removeFromCart(id);
       setCart(updated);
-    } catch (err: any) {
-      setError(err?.message || 'Failed to remove item');
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to remove item');
     } finally {
       setUpdatingCart(false);
     }
@@ -78,8 +77,6 @@ export default function App() {
 
   async function handleCheckout(name: string, email: string) {
     const receipt = await api.checkout({ name, email });
-    setLastReceipt(receipt);
-    // Re-fetch cart after checkout to reflect cleared state
     const refreshed = await api.getCart();
     setCart(refreshed);
     return receipt;
@@ -89,7 +86,7 @@ export default function App() {
     <div className="min-h-dvh bg-gray-50">
       <header className="border-b bg-white">
         <div className="mx-auto max-w-6xl px-4 py-3 flex items-center justify-between">
-          <h1 className="text-xl font-semibold">Vibe Commerce — Mock E-Com Cart</h1>
+          <h1 className="text-xl font-semibold">Vibe Commerce - Mock E-Com Cart</h1>
           <div className="flex items-center gap-3">
             <button
               className={`text-sm px-3 py-1.5 rounded-md border ${view === 'products' ? 'bg-black text-white border-black' : ''}`}
@@ -97,11 +94,11 @@ export default function App() {
             >
               Products
             </button>
-            <button
+<button
               className={`text-sm px-3 py-1.5 rounded-md border flex items-center gap-2 ${view === 'cart' ? 'bg-black text-white border-black' : ''}`}
               onClick={() => setView('cart')}
             >
-              <span>Cart</span>
+  <span>Cart</span>
               <span className="inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-black text-white text-xs px-1">
                 {cartCount}
               </span>
@@ -110,14 +107,14 @@ export default function App() {
         </div>
       </header>
 
-      <main className="mx-auto max-w-6xl px-4 py-6">
+              <main className="mx-auto max-w-6xl px-4 py-6">
         {error && (
           <div className="mb-4 rounded-md border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800">
             {error}
           </div>
         )}
 
-        {loading ? (
+{loading ? (
           <div className="text-center text-gray-600">Loading…</div>
         ) : (
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -133,7 +130,7 @@ export default function App() {
                 </div>
               )}
             </section>
-            <aside className={`${view === 'products' ? 'hidden lg:block' : ''}`}>
+ <aside className={`${view === 'products' ? 'hidden lg:block' : ''}`}>
               <Cart
                 cart={cart}
                 updating={updatingCart}
@@ -146,7 +143,6 @@ export default function App() {
           </div>
         )}
       </main>
-
       <CheckoutModal
         open={showCheckout}
         onClose={() => setShowCheckout(false)}
@@ -155,3 +151,4 @@ export default function App() {
     </div>
   );
 }
+

@@ -12,10 +12,10 @@ function joinUrl(base: string | undefined, path: string) {
     return `${b}${p}`;
   }
 }
-
 async function http<T>(path: string, init?: RequestInit): Promise<T> {
   const url = joinUrl(RAW_BASE, path);
   const isJson = !!init?.body;
+  // console.log(`HTTP ${init?.method || 'GET'} ${url}`);
   const res = await fetch(url, {
     credentials: 'include',
     headers: {
@@ -26,6 +26,7 @@ async function http<T>(path: string, init?: RequestInit): Promise<T> {
   });
   const contentType = res.headers.get('content-type') || '';
   const data = contentType.includes('application/json') ? await res.json() : undefined;
+  // console.log(`Response from ${url}:`, data);
   if (!res.ok) {
     const message = (data && (data.error || data.message)) || res.statusText;
     throw new Error(message);

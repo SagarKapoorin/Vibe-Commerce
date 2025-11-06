@@ -6,8 +6,9 @@ type Props = {
 };
 
 export default function ProductCard({ product, onAdd }: Props) {
+  // console.log('Rendering ProductCard for', product.name);
   return (
-    <div className="rounded-lg border bg-white shadow-sm flex flex-col">
+ <div className="rounded-lg border bg-white shadow-sm flex flex-col">
       {product.image ? (
         <img
           src={product.image}
@@ -23,14 +24,14 @@ export default function ProductCard({ product, onAdd }: Props) {
         <h3 className="text-lg font-semibold">{product.name}</h3>
         {product.description && (
           <p className="text-sm text-gray-600 mt-1 line-clamp-2">{product.description}</p>
-        )}
-        <div className="mt-auto flex items-center justify-between pt-3">
+)}
+    <div className="mt-auto flex items-center justify-between pt-3">
           <span className="text-base font-medium">${product.price.toFixed(2)}</span>
           <button
             onClick={() => onAdd(product.id)}
             className="inline-flex items-center rounded-md bg-black text-white px-3 py-1.5 text-sm hover:bg-gray-800"
           >
-            Add to Cart
+        Add to Cart
           </button>
         </div>
       </div>

@@ -1,49 +1,59 @@
 import { Router } from "express";
-import { products, getProductById } from "../data/products.js";
-import { cartStore } from "../store/cartStore.js";
 import { CartItem } from "../types.js";
-import { computeCartSummary } from "../utils/cart.js";
+import { ProductModel } from "../models/Product.js";
+import { addToCart, getCartSummary, removeFromCart } from "../services/cartService.js";
+import { badRequest, notFound } from "../errors.js";
 
 const router = Router();
 
-router.get("/", (_req, res) => {
-  const summary = computeCartSummary(cartStore.toArray(), products);
-  res.json(summary);
+router.get("/", async (req, res, next) => {
+  try {
+    const userId = req.session.userId!;
+    const summary = await getCartSummary(userId);
+    res.json(summary);
+  } catch (err) {
+    next(err);
+  }
 });
 
-router.post("/", (req, res) => {
-  const { productId, qty } = req.body ?? {};
-
-  if (typeof productId !== "string" || productId.trim() === "") {
-    return res.status(400).json({ error: "productId is required" });
+router.post("/", async (req, res, next) => {
+  try {
+    const { productId, qty } = req.body ?? {};
+    if (typeof productId !== "string" || productId.trim() === "") {
+      throw badRequest("productId is required");
+    }
+    const product = await ProductModel.findById(productId).lean();
+    if (!product) {
+      throw notFound("Product not found");
+    }
+    const parsedQty = Number(qty);
+    if (!Number.isFinite(parsedQty) || Math.floor(parsedQty) !== parsedQty) {
+      throw badRequest("qty must be an integer");
+    }
+    if (parsedQty === 0) {
+      throw badRequest("qty cannot be 0");
+    }
+    const userId = req.session.userId!;
+    const summary = await addToCart(userId, productId, parsedQty);
+    res.status(201).json(summary);
+  } catch (err) {
+    next(err);
   }
-  const product = getProductById(productId);
-  if (!product) {
-    return res.status(404).json({ error: "Product not found" });
-  }
-  const parsedQty = Number(qty);
-  if (!Number.isFinite(parsedQty) || Math.floor(parsedQty) !== parsedQty) {
-    return res.status(400).json({ error: "qty must be an integer" });
-  }
-  if (parsedQty === 0) {
-    return res.status(400).json({ error: "qty cannot be 0" });
-  }
-
-  cartStore.add(productId, parsedQty);
-  const summary = computeCartSummary(cartStore.toArray(), products);
-  res.status(201).json(summary);
 });
 
-router.delete("/:id", (req, res) => {
-  const id = req.params.id;
-  const product = getProductById(id);
-  if (!product) {
-    return res.status(404).json({ error: "Product not found" });
+router.delete("/:id", async (req, res, next) => {
+  try {
+    const id = req.params.id;
+    const product = await ProductModel.findById(id).lean();
+    if (!product) {
+      throw notFound("Product not found");
+    }
+    const userId = req.session.userId!;
+    const summary = await removeFromCart(userId, id);
+    res.json(summary);
+  } catch (err) {
+    next(err);
   }
-  cartStore.remove(id);
-  const summary = computeCartSummary(cartStore.toArray(), products);
-  res.json(summary);
 });
 
 export default router;
-

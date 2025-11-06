@@ -19,7 +19,7 @@ app.use(express.json());
 const [sessionHandler, ensureUserId] = sessionMiddleware();
 app.use(sessionHandler);
 app.use(ensureUserId);
-app.use(rateLimitRedis());
+app.use(rateLimitRedis({ windowSeconds: 60*5, max: 100 }))
 
 app.get('/api/health', (_req, res) => {
   res.json({ ok: true });

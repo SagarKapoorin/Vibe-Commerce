@@ -1,4 +1,4 @@
-import { CartItem } from "../types.js";
+import { CartItem } from '../types.js';
 
 class CartStore {
   private items = new Map<string, number>();
@@ -35,4 +35,3 @@ class CartStore {
 }
 
 export const cartStore = new CartStore();
-

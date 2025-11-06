@@ -1,7 +1,7 @@
-import { CartModel } from "../models/Cart.js";
-import { ProductModel } from "../models/Product.js";
-import { CartItem, CartSummary, Product } from "../types.js";
-import { computeCartSummary } from "../utils/cart.js";
+import { CartModel } from '../models/Cart.js';
+import { ProductModel } from '../models/Product.js';
+import { CartItem, CartSummary, Product } from '../types.js';
+import { computeCartSummary } from '../utils/cart.js';
 
 async function getOrCreateCart(userId: string) {
   let cart = await CartModel.findOne({ userId }).lean();
@@ -12,6 +12,7 @@ async function getOrCreateCart(userId: string) {
 }
 
 export async function getCartSummary(userId: string): Promise<CartSummary> {
+  // console.log("getCartSummary called for userId:", userId);
   const cart = await getOrCreateCart(userId);
   const productIds = cart.items.map((i) => i.productId);
   const products = await ProductModel.find({ _id: { $in: productIds } }).lean();
@@ -26,7 +27,11 @@ export async function getCartSummary(userId: string): Promise<CartSummary> {
   return computeCartSummary(items, productList);
 }
 
-export async function addToCart(userId: string, productId: string, qty: number): Promise<CartSummary> {
+export async function addToCart(
+  userId: string,
+  productId: string,
+  qty: number,
+): Promise<CartSummary> {
   const cart = await getOrCreateCart(userId);
   const existing = cart.items.find((i) => i.productId === productId);
   if (existing) {
@@ -49,4 +54,3 @@ export async function removeFromCart(userId: string, productId: string): Promise
 export async function clearCart(userId: string): Promise<void> {
   await CartModel.updateOne({ userId }, { $set: { items: [] } }, { upsert: true });
 }
-

@@ -35,4 +35,3 @@ export type Receipt = {
   timestamp: string;
   customer?: { name?: string; email?: string };
 };
-

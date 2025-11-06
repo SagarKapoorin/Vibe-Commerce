@@ -1,7 +1,7 @@
-import mongoose, { Schema } from "mongoose";
+import mongoose, { Schema } from 'mongoose';
 
 export interface ProductDoc {
-  _id: string; // keep string ids like 'p1'
+  _id: string;
   name: string;
   price: number;
   image?: string;
@@ -16,5 +16,4 @@ const ProductSchema = new Schema<ProductDoc>({
   description: { type: String },
 });
 
-export const ProductModel = mongoose.model<ProductDoc>("Product", ProductSchema);
-
+export const ProductModel = mongoose.model<ProductDoc>('Product', ProductSchema);

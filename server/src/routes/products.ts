@@ -1,10 +1,11 @@
-import { Router } from "express";
-import { ProductModel } from "../models/Product.js";
+import { Router } from 'express';
+import { ProductModel } from '../models/Product.js';
 
 const router = Router();
 
-router.get("/", async (_req, res, next) => {
+router.get('/', async (_req, res, next) => {
   try {
+    // console.log("Products route hit");
     const docs = await ProductModel.find({}).lean();
     const list = docs.map((p) => ({
       id: p._id,

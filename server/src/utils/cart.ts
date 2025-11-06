@@ -1,6 +1,6 @@
-import { CartItem, CartLine, CartSummary, Product } from "../types.js";
-
+import { CartItem, CartLine, CartSummary, Product } from '../types.js';
 export function computeCartSummary(cartItems: CartItem[], products: Product[]): CartSummary {
+  // console.log("computeCartSummary called");
   const productMap = new Map(products.map((p) => [p.id, p] as const));
   const lines: CartLine[] = [];
   for (const item of cartItems) {
@@ -16,8 +16,6 @@ export function computeCartSummary(cartItems: CartItem[], products: Product[]): 
   const total = roundCurrency(lines.reduce((sum, l) => sum + l.lineTotal, 0));
   return { items: lines, total };
 }
-
 export function roundCurrency(value: number): number {
   return Math.round(value * 100) / 100;
 }
-

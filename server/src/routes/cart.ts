@@ -2,9 +2,14 @@ import { Router } from 'express';
 import { ProductModel } from '../models/Product.js';
 import { addToCart, getCartSummary, removeFromCart } from '../services/cartService.js';
 import { badRequest, notFound } from '../errors.js';
+import { cacheGetRedis, invalidateCache } from '../middleware/cache.js';
 
 const router = Router();
-router.get('/', async (req, res, next) => {
+router.get('/', cacheGetRedis({
+  prefix: 'cart',
+  ttlSeconds: 60,
+  keyGenerator: (req) => req.session.userId!,
+}), async (req, res, next) => {
   try {
     // console.log("hit1")
     const userId = req.session.userId!;
@@ -35,6 +40,7 @@ router.post('/', async (req, res, next) => {
     }
     const userId = req.session.userId!;
     const summary = await addToCart(userId, productId, parsedQty);
+    await invalidateCache('cart', userId);
     // console.log(userId+" "+summary)
     res.status(201).json(summary);
   } catch (err) {
@@ -52,6 +58,7 @@ router.delete('/:id', async (req, res, next) => {
     }
     const userId = req.session.userId!;
     const summary = await removeFromCart(userId, id);
+    await invalidateCache('cart', userId);
     res.json(summary);
   } catch (err) {
     next(err);

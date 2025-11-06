@@ -5,6 +5,7 @@ import { computeCartSummary } from '../utils/cart.js';
 import { ProductModel } from '../models/Product.js';
 import { clearCart, getCartSummary } from '../services/cartService.js';
 import { badRequest } from '../errors.js';
+import { invalidateCache } from '../middleware/cache.js';
 
 const router = Router();
 
@@ -45,6 +46,7 @@ router.post('/', async (req, res, next) => {
     if (!items) {
       const userId = req.session.userId!;
       await clearCart(userId);
+      await invalidateCache('cart', userId);
     }
 
     res.status(201).json(receipt);

@@ -1,9 +1,10 @@
 import { Router } from 'express';
 import { ProductModel } from '../models/Product.js';
+import { cacheGetRedis } from '../middleware/cache.js';
 
 const router = Router();
 
-router.get('/', async (_req, res, next) => {
+router.get('/', cacheGetRedis({ prefix: 'products', ttlSeconds: 300 }), async (_req, res, next) => {
   try {
     // console.log("Products route hit");
     const docs = await ProductModel.find({}).lean();

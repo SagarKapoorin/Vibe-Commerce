@@ -16,7 +16,7 @@ export default function ProductCard({ product, onAdd }: Props) {
             className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
           />
         </div>
-      ) : (
+) : (
         <div className="aspect-[4/3] w-full bg-gradient-to-br from-slate-100 to-slate-200 grid place-items-center text-slate-400">
           <div className="text-center">
             <svg className="w-12 h-12 mx-auto mb-2 opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -25,7 +25,7 @@ export default function ProductCard({ product, onAdd }: Props) {
             <span className="text-sm">No Image</span>
           </div>
         </div>
-      )}
+)}
       <div className="p-5 flex-1 flex flex-col">
         <h3 className="text-lg font-semibold text-slate-900 group-hover:text-slate-700 transition-colors">{product.name}</h3>
         {product.description && (
